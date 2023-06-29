@@ -1,7 +1,9 @@
-import { Routes } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Default from "./components/layouts/default";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
@@ -12,6 +14,7 @@ const App = () => {
           <Route path="login" element={<Login />} />
         </Route>
       </Routes>
+      <ToastContainer />
     </>
   );
 };
