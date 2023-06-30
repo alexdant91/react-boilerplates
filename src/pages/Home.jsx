@@ -1,8 +1,37 @@
-import { useSelector } from "react-redux";
+import useFetch from "../hooks/useFetch";
+import constants from "../constants"; 
+
+
 
 const Home = () => {
-  const token = useSelector((state) => state.auth.token)
-  return <>{token}</>;
+  const [products, productsError, updateProducts] = useFetch(`${constants.API_HOST}/products`)
+  return <>
+  <div className="flex p-12 gap-4">
+    {
+      products && products.products.map((product) => {
+        return (
+          <div key={product.id} className="bg-white shadow-md border border-gray-200 rounded-lg max-w-sm">
+        <div className="flex justify-center items-center">
+            <img style={{height:"240px", width:"auto"}} className="rounded-t-lg" src={product.image} alt="" />
+        </div>
+        <div className="p-5">
+            <a href="#">
+                <h5 className="text-gray-900 font-bold text-2xl tracking-tight mb-2">{product.title}</h5>
+            </a>
+            <div className="flex justify-between">
+              <span>{product.price}</span>
+            <button href="#" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center inline-flex items-center  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                Add to cart!
+            </button>
+            </div>
+        </div>
+    </div>
+
+        )
+      })
+    }
+  </div>
+  </>;
 };
 
 export default Home;

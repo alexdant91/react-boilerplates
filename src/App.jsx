@@ -1,9 +1,24 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Default from "./components/layouts/Default";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector } from "react-redux";
+import UserLayout from "./components/layouts/UserLayout";
+import Profile from "./pages/users/Profile";
+
+const ProtectedRoute = ({children}) => {
+  const token = useSelector((state) => state.auth.token);
+  
+  if(token == null){
+    return (
+      <Navigate to="/login" />
+    )
+  }
+  return children;
+
+}
 
 const App = () => {
   return (
@@ -12,6 +27,9 @@ const App = () => {
         <Route path="/" element={<Default />}>
           <Route path="" element={<Home />} />
           <Route path="login" element={<Login />} />
+        </Route>
+        <Route path="/users" element={ <ProtectedRoute><UserLayout /></ProtectedRoute>}>
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
       <ToastContainer />

@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../../store/authSlice";
 
 
-const Navbar = () => {
+const UserNavbar = () => {
   const location = useLocation();
   const user = useSelector((state) => state.auth.user)
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ const Navbar = () => {
                 href="#"
                 className="text-lg font-semibold tracking-widest text-gray-900 uppercase rounded-lg dark-mode:text-white focus:outline-none focus:shadow-outline"
               >
-               Pippo Ui
+                Dashboard
               </a>
               <button
                 className="rounded-lg md:hidden focus:outline-none focus:shadow-outline"
@@ -70,23 +70,12 @@ const Navbar = () => {
               </Link>
               {
                 user ? 
-                <>
-                  <Link
-                className={[
-                  "px-4 py-2 mt-2 text-sm font-semibold rounded-lg  dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 md:ml-4 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline",
-                  location.pathname == "/users/profile" ? "bg-gray-200" : "",
-                ].join(" ")}
-                to="/users/profile"
-              >
-                Profile
-              </Link>
                 <button
                 onClick={handleLogout}
                 className="px-4 py-2 mt-2 text-sm font-semibold rounded-lg dark-mode:dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 md:ml-4 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline"
               >
                 Logout
               </button>
-              </>
                 :
                 <Link
                 className={[
@@ -107,4 +96,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default UserNavbar;
