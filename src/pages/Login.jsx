@@ -1,27 +1,72 @@
+import axios from "axios";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import constants from "../constants";
+import { useDispatch } from "react-redux";
+import { login } from "../store/authSlice";
+import { useNavigate } from "react-router-dom";
+
 const Login = () => {
+  const dispatch = useDispatch();
+  const [ form, setForm] = useState({ email: "", password:"" });
+  const navigate = useNavigate();
+
+  const handleInput = (event) => {
+    const {name, value} = event.target;
+    setForm((_form) => {
+      return {..._form, [name]:value}
+    })
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const results = await axios({
+        url: `${constants.API_HOST}/users/login`,
+        method: "POST",
+        data: {
+          ...form
+        }
+      });
+      
+      const data = results.data; // -> { user: { ... }, token: ... }
+      dispatch(login(data));
+      navigate("/")
+    } catch (error) {
+      toast(error.message, {type: "error"})
+    }
+
+  }
+
   return (
     <>
       <div className="min-h-screen bg-gray-100 flex flex-col justify-center sm:py-12">
         <div className="p-10 xs:p-0 mx-auto md:w-full md:max-w-md">
           <h1 className="font-bold text-center text-2xl mb-5">Your Logo</h1>
           <div className="bg-white shadow w-full rounded-lg divide-y divide-gray-200">
-            <div className="px-5 py-7">
+            <form onSubmit={handleSubmit} className="px-5 py-7">
               <label className="font-semibold text-sm text-gray-600 pb-1 block">
                 E-mail
               </label>
               <input
-                type="text"
+                name="email"
+                onInput={handleInput}
+                value={form.email}
+                type="email"
                 className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
               />
               <label className="font-semibold text-sm text-gray-600 pb-1 block">
                 Password
               </label>
               <input
-                type="text"
+                name="password"
+                onInput={handleInput}
+                value={form.password}
+                type="password"
                 className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
               />
               <button
-                type="button"
+                type="submit"
                 className="transition duration-200 bg-blue-500 hover:bg-blue-600 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 text-white w-full py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block"
               >
                 <span className="inline-block mr-2">Login</span>
@@ -40,7 +85,7 @@ const Login = () => {
                   />
                 </svg>
               </button>
-            </div>
+            </form>
             <div className="py-5">
               <div className="grid grid-cols-2 gap-1">
                 <div className="text-center sm:text-left whitespace-nowrap">

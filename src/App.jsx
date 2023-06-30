@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import Default from "./components/layouts/default";
+import Default from "./components/layouts/Default";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";

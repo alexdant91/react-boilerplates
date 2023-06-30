@@ -2,14 +2,15 @@ import { createSlice } from "@reduxjs/toolkit";
 import { internalMemory } from "../utility/internalMemory";
 
 const authSlice = () => {
-  const token = internalMemory.get("token");
-  const user = internalMemory.get("user");
+  const token = internalMemory.get("token") || null;
+  const user = internalMemory.get("user") || null;
+  console.log(token, user);
 
   return createSlice({
     name: "auth",
     initialState: {
-      token: token || null,
-      user: user || null,
+      token: token,
+      user: user,
     },
     reducers: {
       login: (state, action) => {
