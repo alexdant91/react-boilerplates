@@ -16,8 +16,8 @@ const authSlice = () => {
       login: (state, action) => {
         state.token = action.payload.token;
         state.user = action.payload.user;
-        internalMemory.save("token", token);
-        internalMemory.save("user", user);
+        internalMemory.save("token", action.payload.token);
+        internalMemory.save("user", action.payload.user);
       },
       logout: (state) => {
         state.token = null;
