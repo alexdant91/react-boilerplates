@@ -1,17 +1,64 @@
 import useFetch from "../hooks/useFetch";
 import constants from "../constants";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { current } from "@reduxjs/toolkit";
 
 const Cart = () => {
   const token = useSelector((state) => state.auth.token);
+  const [shipping, setShipping] = useState(10);
+  const [code, setCode] = useState("")
+  const [activeCode, setActiveCode] = useState(null);
 
   const [cartItems, _, updateCart] = useFetch(`${constants.API_HOST}/cart`, {
     headers: {
       Authorization: token,
     },
   });
+
+  const handleShipping = (event) => {
+    setShipping(Number(event.target.value));
+
+  }
+  const handleCode = (event) => {
+    setCode(event.target.value)
+  }
+  
+  const validatePromoCode = async () => {
+    try {
+      const results = await axios({
+        url: `${constants.API_HOST}/promo-code/${code}`,
+        method: "GET"
+      });
+  
+      const data = results.data;
+      console.log(data);
+      setActiveCode(data.promo)
+      setCode("")
+    } catch(err) {
+      console.error(err);
+    }
+  }
+
+    const calculatePromoCode = (currentValue) => {
+      console.log(currentValue, activeCode);
+      if(activeCode == null){
+        return currentValue
+      }else{
+        if(activeCode.type == "amount"){
+          const newValue = Number(currentValue) - Number(activeCode.value);
+          console.log(newValue);
+          return newValue > 0 ? newValue : 0;
+        } else {
+          return Number(currentValue) - (Number(currentValue) * Number(activeCode.value) / 100 )
+        }
+      }
+    }
+
+    const removePromoCode = () => {
+      setActiveCode(null)
+    }
 
   const deleteItem = async (id) => {
     try {
@@ -50,7 +97,7 @@ const Cart = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }; 
 
   useEffect(() => {
     console.log(cartItems);
@@ -118,7 +165,7 @@ const Cart = () => {
                     <input
                       className="mx-2 border text-center w-8"
                       type="text"
-                      value={item.qnt}
+                      defaultValue={item.qnt}
                     />
                     <svg
                       className="fill-current text-gray-600 w-3"
@@ -155,18 +202,21 @@ const Cart = () => {
               Order Summary
             </h1>
             <div className="flex justify-between mt-10 mb-5">
-              <span className="font-semibold text-sm uppercase">Items 3</span>
-              <span className="font-semibold text-sm">590$</span>
+              <span className="font-semibold text-sm uppercase">Items {cartItems &&
+              cartItems.cart.reduce((a,b) => a + b.qnt, 0)}</span>
+              <span className="font-semibold text-sm">{cartItems && cartItems.cart.reduce((a,b) => {return  a + (b.price * b.qnt)},0)}€</span>
             </div>
             <div>
               <label className="font-medium inline-block mb-3 text-sm uppercase">
                 Shipping
               </label>
-              <select className="block p-2 text-gray-600 w-full text-sm">
-                <option>Standard shipping - $10.00</option>
+              <select value={shipping} onChange={handleShipping} className="block p-2 text-gray-600 w-full text-sm">
+                <option value={10}>Standard shipping - €10.00</option>
+                <option value={25}>Express shipping - €25.00</option>
               </select>
             </div>
-            <div className="py-10">
+            <form onSubmit={(event) => event.preventDefault()}>
+            <div className="py-5">
               <label
                 htmlFor="promo"
                 className="font-semibold inline-block mb-3 text-sm uppercase"
@@ -174,19 +224,33 @@ const Cart = () => {
                 Promo Code
               </label>
               <input
+                required={true}
+                onInput={handleCode}
+                value={code}
                 type="text"
                 id="promo"
                 placeholder="Enter your code"
                 className="p-2 text-sm w-full"
               />
             </div>
-            <button className="bg-red-500 hover:bg-red-600 px-5 py-2 text-sm text-white uppercase">
+            <div className="py-5">
+              { 
+              activeCode != null && (
+                <span className="bg-green-50 flex items-center justify-between text-green-700 py-1 px-2 text-sm">
+                  <span>{activeCode.name}</span>
+                  <svg style={{height: 12}} className="cursor-pointer " onClick={removePromoCode} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50px" height="50px"><path d="M 7.71875 6.28125 L 6.28125 7.71875 L 23.5625 25 L 6.28125 42.28125 L 7.71875 43.71875 L 25 26.4375 L 42.28125 43.71875 L 43.71875 42.28125 L 26.4375 25 L 43.71875 7.71875 L 42.28125 6.28125 L 25 23.5625 Z"/></svg>
+                </span>
+              ) 
+              }
+            </div>
+            <button type="submit" onClick={validatePromoCode} className="bg-red-500 hover:bg-red-600 px-5 py-2 text-sm text-white uppercase">
               Apply
             </button>
+            </form>
             <div className="border-t mt-8">
               <div className="flex font-semibold justify-between py-6 text-sm uppercase">
                 <span>Total cost</span>
-                <span>$600</span>
+                <span>€{calculatePromoCode(cartItems && cartItems.cart.reduce((a,b) => {return  a + (b.price * b.qnt)},0) + shipping)}</span>
               </div>
               <button className="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full">
                 Checkout
